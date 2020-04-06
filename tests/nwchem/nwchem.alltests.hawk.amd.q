@@ -11,14 +11,15 @@
 #SBATCH --account=scw1001
 
 module purge
-module load compiler/intel/2018/4
-module load mpi/intel/2018/4
+module load nwchem/6.8.1-cpu
+#module load compiler/intel/2018/4
+#module load mpi/intel/2018/4
 module list
 
-INTELPATH=/apps/compilers/intel/2018.4/compilers_and_libraries_2018/linux
-source ${INTELPATH}/bin/compilervars.sh intel64
-source ${INTELPATH}/mpi/bin64/mpivars.sh intel64
-source ${INTELPATH}/mkl/bin/mklvars.sh intel64
+#INTELPATH=/apps/compilers/intel/2018.4/compilers_and_libraries_2018/linux
+#source ${INTELPATH}/bin/compilervars.sh intel64
+#source ${INTELPATH}/mpi/bin64/mpivars.sh intel64
+#source ${INTELPATH}/mkl/bin/mklvars.sh intel64
 
 ulimit -s unlimited
 export NWCHEM_TARGET=LINUX64
@@ -33,10 +34,10 @@ export top_dir=$root/bench/tests/nwchem
 export input_dir=${top_dir}/input_files
 export MYLOGS=${top_dir}/logs.${SKU}
 export WDPATH=/scratch/$USER/NWCHEM.$SLURM_JOBID
-CODE=${root}/bench/tests/nwchem
-BINDIR=${root}/bench/bin/nwchem/6.8.1/i2018.4/base-amd/7502/bin
-export PATH=$BINDIR:$PATH
-export NWCHEM_BASIS_LIBRARY=${root}/bench/bin/nwchem/6.8.1/i2018.4/base-amd/7502/data/libraries/
+#CODE=${root}/bench/tests/nwchem
+#BINDIR=${root}/bench/bin/nwchem/6.8.1/i2018.4/base-amd/7502/bin
+#export PATH=$BINDIR:$PATH
+#export NWCHEM_BASIS_LIBRARY=${root}/bench/bin/nwchem/6.8.1/i2018.4/base-amd/7502/data/libraries/
 
 mkdir -p ${MYLOGS}
 
