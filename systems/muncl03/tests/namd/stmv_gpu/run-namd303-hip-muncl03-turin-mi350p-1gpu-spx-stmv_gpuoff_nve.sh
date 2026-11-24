@@ -163,5 +163,5 @@ for i in $(seq 0 $(( NREP - 1 ))) ; do
     TOTAL=$(awk -v a=${TOTAL} -v b=${RATE} 'BEGIN { printf "%.4f", a + b }')
     cp r${i}/rep.log ${LOGDIR}/namd-hip-${cluster}-${arch}-${gpu_model}-${BENCH}-n${SLURM_NTASKS}-c${SLURM_CPUS_PER_TASK}-g${NGPUS}-id${SLURM_JOBID}-log-rep${i}
 done
-echo "stmv ${MODE} aggregate: ${TOTAL} ns/day"
+echo "${BENCH} ${MODE} aggregate: ${TOTAL} ns/day"
 
