@@ -15,3 +15,8 @@ otherwise run the risk of assigning all and decrease
 performance.
 
 ROCR_VISIBLE_DEVICES is undefined in MI350P
+
+Odd error on MI350P. Causes NAMD apoa1 simulation to hang.
+```
+OwnerBox::close() - close called, but closeCount 0 openCount -1
+```
