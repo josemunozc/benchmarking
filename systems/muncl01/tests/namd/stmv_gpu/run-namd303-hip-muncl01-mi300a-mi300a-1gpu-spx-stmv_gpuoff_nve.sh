@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --threads-per-core=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=2:00:00
+#SBATCH --time=00:20:00
 #SBATCH -d singleton
 
 set -euo pipefail
@@ -51,16 +51,18 @@ fi
 STEPS=25000
 BENCHTIME=3600
 BENCH="stmv_gpuoff_nve"
-MYDATA=${SLURM_SUBMIT_DIR}/input/stmv_gpu
+MYDATA=${HOME}/benchmarking/input/namd/stmv_gpu
 WORK=${HOME}/scratch/parallel_benchmarks/namd-${MODE}-${BENCH}-${SLURM_JOBID}
+LOGDIR=${SLURM_SUBMIT_DIR}/logs-${SLURM_JOB_NAME}
 
 [ -x ${NAMD} ] || { echo "no namd3 at ${NAMD}" ; exit 1 ; }
 
 # ---------------------------------------------------------------- configure the input
 # We modify the original benchmark files from NAMD website to set:
-#set benchtime    3600;
-#set num_steps_run   25000;
+#set benchtime    $STEPS;
+#set num_steps_run   $BENCHTIME;
 
+mkdir -p ${LOGDIR}
 mkdir -p ${WORK}
 cd ${WORK}
 
@@ -130,7 +132,7 @@ for i in $(seq 0 $(( NREP - 1 ))) ; do
     echo "replica ${i} (device ${ROCR_VISIBLE_DEVICES}): ${STATS} ns/day"
     echo "replica ${i} (device ${ROCR_VISIBLE_DEVICES}): ${RATE} ns/day"
     TOTAL=$(awk -v a=${TOTAL} -v b=${RATE} 'BEGIN { printf "%.4f", a + b }')
-    cp r${i}/rep.log namd-hip-${cluster}-${arch}-${gpu_model}-${BENCH}-n${SLURM_NTASKS}-c${SLURM_CPUS_PER_TASK}-g${NGPUS}-id${SLURM_JOBID}-log-rep${i}
+    cp r${i}/rep.log ${LOGDIR}/namd-hip-${cluster}-${arch}-${gpu_model}-${BENCH}-n${SLURM_NTASKS}-c${SLURM_CPUS_PER_TASK}-g${NGPUS}-id${SLURM_JOBID}-log-rep${i}
 done
-echo "stmv ${MODE} aggregate: ${TOTAL} ns/day"
+echo "${BENCH} ${MODE} aggregate: ${TOTAL} ns/day"
 

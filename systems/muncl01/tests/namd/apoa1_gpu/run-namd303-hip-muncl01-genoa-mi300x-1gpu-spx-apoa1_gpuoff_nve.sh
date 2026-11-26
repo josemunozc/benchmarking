@@ -5,9 +5,9 @@
 #SBATCH --partition=MI300X
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=32
 #SBATCH --gres=gpu:1
-#SBATCH --time=2:00:00
+#SBATCH --time=00:20:00
 #SBATCH -d singleton
 
 set -euo pipefail
@@ -50,8 +50,9 @@ fi
 STEPS=100000
 BENCHTIME=1800
 BENCH="apoa1_gpuoff_nve"
-MYDATA=${SLURM_SUBMIT_DIR}/input/apoa1_gpu
+MYDATA=${HOME}/benchmarking/input/namd/apoa1_gpu
 WORK=${HOME}/scratch/parallel_benchmarks/namd-${MODE}-${BENCH}-${SLURM_JOBID}
+LOGDIR=${SLURM_SUBMIT_DIR}/logs-${SLURM_JOB_NAME}
 
 [ -x ${NAMD} ] || { echo "no namd3 at ${NAMD}" ; exit 1 ; }
 
@@ -60,6 +61,7 @@ WORK=${HOME}/scratch/parallel_benchmarks/namd-${MODE}-${BENCH}-${SLURM_JOBID}
 #set benchtime    3600;
 #set num_steps_run   25000;
 
+mkdir -p ${LOGDIR}
 mkdir -p ${WORK}
 cd ${WORK}
 
@@ -75,7 +77,7 @@ grep -iE "num_steps_run|benchtime" stage/${INPUT} || true
 # This needs to be adapted to the host cluster
 sudo /home/tools/gpu-manager.sh set -c ${MODE}
 sudo /home/tools/gpu-manager.sh set -o ${POWER}
-trap 'sudo /home/tools/gpu-manager.sh reverse-power' EXIT  # (restore default)
+trap 'sudo /home/tools/gpu-manager.sh reverse-all' EXIT  # (restore default)
 sleep 5
 
 # print some GPU details 
@@ -127,7 +129,7 @@ for i in $(seq 0 $(( NREP - 1 ))) ; do
     echo "replica ${i} (device ${ROCR_VISIBLE_DEVICES}): ${STATS} ns/day"
     echo "replica ${i} (device ${ROCR_VISIBLE_DEVICES}): ${RATE} ns/day"
     TOTAL=$(awk -v a=${TOTAL} -v b=${RATE} 'BEGIN { printf "%.4f", a + b }')
-    cp r${i}/rep.log namd-hip-${cluster}-${arch}-${gpu_model}-${BENCH}-n${SLURM_NTASKS}-c${SLURM_CPUS_PER_TASK}-g${NGPUS}-id${SLURM_JOBID}-log-rep${i}
+    cp r${i}/rep.log ${LOGDIR}/namd-hip-${cluster}-${arch}-${gpu_model}-${BENCH}-n${SLURM_NTASKS}-c${SLURM_CPUS_PER_TASK}-g${NGPUS}-id${SLURM_JOBID}-log-rep${i}
 done
 echo "${BENCH} ${MODE} aggregate: ${TOTAL} ns/day"
 
